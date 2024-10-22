@@ -7,8 +7,9 @@ import docx  # For reading .docx files
 with open('C:/cdng/CloudClass2/apikey.txt', 'r') as file:
     openai.api_key = file.read().strip()
 
+STATIC_DIR = os.path.abspath('project\static')
 # Initialize Flask app
-app = Flask(__name__, static_folder='project/static')
+app = Flask(__name__, static_folder=STATIC_DIR)
 
 # Function to extract text from .docx file
 def extract_text_from_docx(file_path):
