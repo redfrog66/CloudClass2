@@ -4,11 +4,11 @@ import os
 import docx  # For reading .docx files
 
 # Load API key from a text file
-with open('apikey.txt', 'r') as file:
+with open('C:/cdng/CloudClass2/apikey.txt', 'r') as file:
     openai.api_key = file.read().strip()
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='project/static')
 
 # Function to extract text from .docx file
 def extract_text_from_docx(file_path):

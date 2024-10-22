@@ -4,17 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Upload</title>
+    <link rel="stylesheet" href="project/static/index.css">
 </head>
 <body>
-    <h1>Upload Document</h1>
-    <form id="uploadForm">
-        <input type="file" name="document" accept=".docx" required>
-        <button type="submit">Upload</button>
-    </form>
+    <div class="center-square">
+        <h1>Upload Document</h1>
+        <form id="uploadForm">
+            <input type="file" name="document" accept=".docx" required>
+            <button type="submit">Upload</button>
+        </form>
 
-    <h2>Ask a Question</h2>
-    <input type="text" id="question-input" placeholder="Enter your question" required><br>
-    <button id="askButton">Ask</button>
+        <h2>Ask a Question</h2>
+        <input type="text" id="question-input" placeholder="Enter your question" required><br>
+        <button id="askButton">Ask</button>
+    </div>
 
     <div id="response"></div>
 

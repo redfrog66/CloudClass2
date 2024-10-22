@@ -1,0 +1,59 @@
+/* Set the body to have a full viewport height and ensure it's centered */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('project/static/wallpaper.jpg'); 
+    background-size: cover; /* Ensures the image covers the entire background */
+    background-position: center; /* Center the background */
+    background-repeat: no-repeat; /* Prevent image repeating */
+}
+
+/* Create the big gray square in the center */
+.centered-square {
+    background-color: #808080; /* Gray color */
+    width: 600px;
+    height: 600px;
+    border-radius: 15px; /* Add a bit of rounding to the corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Style for the form elements */
+form, h1, h2, input, button {
+    margin: 10px;
+}
+
+/* Style the buttons */
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Style the inputs */
+input[type="file"], input[type="text"] {
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+}
+
+#response {
+    margin-top: 20px;
+    color: white;
+}
