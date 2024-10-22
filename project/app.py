@@ -57,15 +57,12 @@ def ask_question():
     content = data.get('content')
     question = data.get('question')
 
-    print("Received content length:", len(content))  # Debugging: length of content
-    print("Received question:", question)  # Debugging: check if question is being passed
-
     try:
-        # Generate a response using the new ChatGPT API
+        # Generate a response using the ChatGPT API
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "system", "content": "You are a helpful assistant. Respond in the same language as the question."},
                 {"role": "user", "content": f"Based on the following document:\n\n{content}\n\nAnswer the question: {question}"}
             ],
             max_tokens=150
@@ -79,7 +76,6 @@ def ask_question():
             return jsonify({"error": "No answer found"}), 500
 
     except Exception as e:
-        print("Error:", e)  # Log the error
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":

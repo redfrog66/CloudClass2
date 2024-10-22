@@ -13,13 +13,14 @@
     </form>
 
     <h2>Ask a Question</h2>
-    <textarea id="document-content" rows="10" cols="30"></textarea><br>
-    <input type="text" id="question-input" placeholder="Enter your question"><br>
+    <input type="text" id="question-input" placeholder="Enter your question" required><br>
     <button id="askButton">Ask</button>
 
     <div id="response"></div>
 
     <script>
+        let documentContent = '';  // Variable to store the content without displaying it
+
         document.getElementById('uploadForm').onsubmit = async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -28,11 +29,11 @@
                 body: formData
             });
             const result = await response.json();
-            document.getElementById('document-content').value = result.content; // Populate the textarea with the content
+            // Store the content in a variable instead of displaying it
+            documentContent = result.content;  
         };
 
         document.getElementById('askButton').onclick = async function() {
-            const content = document.getElementById('document-content').value;
             const question = document.getElementById('question-input').value;
 
             const response = await fetch('/ask', {
@@ -40,7 +41,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ content: content, question: question })
+                body: JSON.stringify({ content: documentContent, question: question })  // Send the stored content
             });
 
             const result = await response.json();
