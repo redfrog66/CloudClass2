@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Upload</title>
+</head>
+<body>
+    <h1>Upload Document</h1>
+    <form id="uploadForm">
+        <input type="file" name="document" accept=".docx" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <h2>Ask a Question</h2>
+    <textarea id="document-content" rows="10" cols="30"></textarea><br>
+    <input type="text" id="question-input" placeholder="Enter your question"><br>
+    <button id="askButton">Ask</button>
+
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('document-content').value = result.content; // Populate the textarea with the content
+        };
+
+        document.getElementById('askButton').onclick = async function() {
+            const content = document.getElementById('document-content').value;
+            const question = document.getElementById('question-input').value;
+
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: content, question: question })
+            });
+
+            const result = await response.json();
+            document.getElementById('response').innerText = result.answer || result.error; // Display the answer or error
+        };
+    </script>
+</body>
+</html>
