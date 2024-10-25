@@ -63,21 +63,40 @@
         /* Chat bubbles */
         .chat-bubble {
             padding: 10px 15px;
-            border-radius: 10px;
+            border-radius: 20px; /* Rounded corners */
             max-width: 80%;
             word-wrap: break-word;
+            position: relative;
         }
 
         .user-question {
-            background-color: #E28B60; /* Pastel burnt orange for user */
+            background-color: #D3D3D3; /* Light gray for User */
+            color: #333;
+            align-self: flex-end;
+        }
+
+        .ai-answer {
+            background-color: #E28B60; /* Pastel burnt orange for ChatGPT */
             color: #fff;
             align-self: flex-start;
         }
 
-        .ai-answer {
-            background-color: #D3D3D3; /* Gray for AI */
-            color: #333;
+        /* Name labels above bubbles */
+        .bubble-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .user-question .bubble-label {
             align-self: flex-end;
+        }
+
+        .bubble-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 3px;
+            font-weight: bold;
         }
 
         /* Input and button styling */
@@ -187,7 +206,7 @@
             const question = document.getElementById('question-input').value;
             if (!question) return;
 
-            addChatBubble(question, 'user-question');
+            addChatBubble(question, 'user-question', 'User');
             document.getElementById('question-input').value = '';
 
             const response = await fetch('/ask', {
@@ -197,14 +216,25 @@
             });
 
             const result = await response.json();
-            addChatBubble(result.answer || result.error, 'ai-answer');
+            addChatBubble(result.answer || result.error, 'ai-answer', 'ChatGPT');
         }
 
-        function addChatBubble(text, className) {
+        function addChatBubble(text, className, senderName) {
+            const bubbleWrapper = document.createElement('div');
+            bubbleWrapper.className = 'bubble-wrapper';
+
+            const label = document.createElement('span');
+            label.className = 'bubble-label';
+            label.textContent = senderName;
+
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${className}`;
             bubble.textContent = text;
-            chatContainer.appendChild(bubble);
+
+            bubbleWrapper.appendChild(label);
+            bubbleWrapper.appendChild(bubble);
+            chatContainer.appendChild(bubbleWrapper);
+
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
