@@ -153,6 +153,33 @@
             scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color and track color */
         }
 
+        /* Typing indicator styling */
+        .typing-indicator {
+            font-size: 1em;
+            color: #E28B60;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .dots {
+            animation: blink 1s steps(5, end) infinite;
+        }
+
+        @keyframes blink {
+            0%, 20% {
+                opacity: 0;
+            }
+            40% {
+                opacity: 1;
+            }
+            60% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -166,6 +193,9 @@
 
         <!-- Chat display section -->
         <div class="chat-container" id="chatContainer"></div>
+
+        <!-- Typing indicator -->
+        <div id="typingIndicator" class="typing-indicator" style="display: none;">ChatGPT is typing<span class="dots">...</span></div>
 
         <!-- Input area for user question -->
         <div class="input-container">
@@ -236,11 +266,16 @@
             addChatBubble(question, 'user-question', 'User', 'bubble-wrapper');
             document.getElementById('question-input').value = '';
 
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'flex'; // Show typing indicator
+
             const response = await fetch('/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: documentContent, question: question })
             });
+
+            typingIndicator.style.display = 'none'; // Hide typing indicator
 
             const result = await response.json();
             addChatBubble(result.answer || result.error, 'ai-answer', 'ChatGPT', 'ai-wrapper');
