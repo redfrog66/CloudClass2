@@ -8,31 +8,84 @@
         body {
             margin: 0;
             padding: 0;
-            background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0'); /* Background image */
-            background-size: cover; /* Ensures the image covers the entire background */
-            background-position: center; /* Center the background */
-            background-repeat: no-repeat; /* Prevent image repeating */
-            height: 100vh; /* Full height of the viewport */
+            background-image: url('https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .center-square {
-            background-color: rgba(128, 128, 128, 0.8); /* Semi-transparent gray color */
+            background-color: rgba(128, 128, 128, 0.8);
             width: 600px;
-            height: auto; /* Adjust height based on content */
-            border-radius: 15px; /* Add a bit of rounding to the corners */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+            max-height: 80vh;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
             padding: 20px;
+            overflow-y: auto;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-bubble {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            width: 75%;
+            display: inline-block;
+        }
+
+        .user-question {
+            background-color: #cc5500; /* Burnt orange color */
+            color: white;
+            align-self: flex-start; /* Aligns the user's message to the left */
+        }
+
+        .ai-answer {
+            background-color: #333;
+            color: white;
+            align-self: flex-end; /* Aligns the AI's message to the right */
+        }
+
+        form, input, button {
+            margin: 10px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="file"], input[type="text"] {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
         }
     </style>
-
 </head>
 <body>
     <div class="center-square">
@@ -45,13 +98,15 @@
         <h2>Ask a Question</h2>
         <input type="text" id="question-input" placeholder="Enter your question" required><br>
         <button id="askButton">Ask</button>
+
+        <!-- Chat container for displaying questions and answers -->
+        <div class="chat-container" id="chatContainer"></div>
     </div>
 
-    <div id="response"></div>
-
     <script>
-        let documentContent = '';  // Variable to store the content without displaying it
+        let documentContent = '';  // Variable to store the document content
 
+        // Handle file upload
         document.getElementById('uploadForm').onsubmit = async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
@@ -60,24 +115,46 @@
                 body: formData
             });
             const result = await response.json();
-            // Store the content in a variable instead of displaying it
-            documentContent = result.content;  
+            documentContent = result.content;  // Store the document content
         };
 
+        // Handle question submission
         document.getElementById('askButton').onclick = async function() {
             const question = document.getElementById('question-input').value;
 
+            // Display the user question as a chat bubble
+            addChatBubble(question, 'user-question');
+
+            // Clear the input
+            document.getElementById('question-input').value = '';
+
+            // Fetch the AI's answer
             const response = await fetch('/ask', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ content: documentContent, question: question })  // Send the stored content
+                body: JSON.stringify({ content: documentContent, question: question })
             });
 
             const result = await response.json();
-            document.getElementById('response').innerText = result.answer || result.error; // Display the answer or error
+            const answer = result.answer || result.error;
+
+            // Display the AI's answer as a chat bubble
+            addChatBubble(answer, 'ai-answer');
         };
+
+        // Function to add a chat bubble to the chat container
+        function addChatBubble(text, className) {
+            const chatContainer = document.getElementById('chatContainer');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${className}`;
+            bubble.textContent = text;
+            chatContainer.appendChild(bubble);
+
+            // Scroll to the bottom of the chat container
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     </script>
 </body>
 </html>
