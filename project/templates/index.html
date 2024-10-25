@@ -51,15 +51,15 @@
         }
 
         .user-question {
-            background-color: #cc5500; /* Burnt orange color */
+            background-color: #E28B60; /* Pastel burnt orange */
             color: white;
-            align-self: flex-start; /* Aligns the user's message to the left */
+            align-self: flex-start;
         }
 
         .ai-answer {
-            background-color: #333;
+            background-color: #555;
             color: white;
-            align-self: flex-end; /* Aligns the AI's message to the right */
+            align-self: flex-end;
         }
 
         form, input, button {
@@ -67,7 +67,7 @@
         }
 
         button {
-            background-color: #4CAF50;
+            background-color: #E28B60;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -76,7 +76,7 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #D57A5A; /* Slightly darker shade on hover */
         }
 
         input[type="file"], input[type="text"] {
@@ -99,7 +99,6 @@
         <input type="text" id="question-input" placeholder="Enter your question" required><br>
         <button id="askButton">Ask</button>
 
-        <!-- Chat container for displaying questions and answers -->
         <div class="chat-container" id="chatContainer"></div>
     </div>
 
@@ -118,8 +117,19 @@
             documentContent = result.content;  // Store the document content
         };
 
-        // Handle question submission
-        document.getElementById('askButton').onclick = async function() {
+        // Handle question submission on button click
+        document.getElementById('askButton').onclick = sendQuestion;
+
+        // Handle question submission on Enter key
+        document.getElementById('question-input').addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendQuestion();
+            }
+        });
+
+        // Function to send the question and display responses
+        async function sendQuestion() {
             const question = document.getElementById('question-input').value;
 
             // Display the user question as a chat bubble
@@ -142,7 +152,7 @@
 
             // Display the AI's answer as a chat bubble
             addChatBubble(answer, 'ai-answer');
-        };
+        }
 
         // Function to add a chat bubble to the chat container
         function addChatBubble(text, className) {
