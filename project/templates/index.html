@@ -23,7 +23,8 @@
         .center-square {
             background-color: rgba(128, 128, 128, 0.8);
             width: 600px;
-            max-height: 80vh;
+            max-height: 80vh; /* Set max height */
+            height: 100%; /* Make it take full height */
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
@@ -51,8 +52,8 @@
         /* Chat container */
         .chat-container {
             width: 100%;
-            max-height: 300px;
-            overflow-y: auto;
+            flex: 1; /* Allow the chat container to grow */
+            overflow-y: auto; /* Enable vertical scrolling */
             margin-bottom: 15px;
             display: flex;
             flex-direction: column;
@@ -72,24 +73,24 @@
         .user-question {
             background-color: #D3D3D3; /* Light gray for User */
             color: #333;
-            align-self: flex-end;
+            align-self: flex-end; /* Align User's bubbles to the left */
         }
 
         .ai-answer {
             background-color: #E28B60; /* Pastel burnt orange for ChatGPT */
             color: #fff;
-            align-self: flex-start;
+            align-self: flex-start; /* Align ChatGPT's bubbles to the right */
         }
 
         /* Name labels above bubbles */
         .bubble-wrapper {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: flex-end; /* Align both to left initially */
         }
 
-        .user-question .bubble-label {
-            align-self: flex-end;
+        .ai-wrapper {
+            align-items: right; /* Align ChatGPT's bubbles to the right */
         }
 
         .bubble-label {
@@ -126,6 +127,32 @@
         button:hover {
             background-color: #D27C5B;
         }
+
+        /* Custom scrollbar styling */
+        .chat-container::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+        }
+
+        .chat-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1); /* Background of the scrollbar track */
+            border-radius: 10px; /* Rounded corners for the track */
+        }
+
+        .chat-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.5); /* Color of the scrollbar thumb */
+            border-radius: 10px; /* Rounded corners for the thumb */
+        }
+
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.8); /* Color of the thumb on hover */
+        }
+
+        /* For Firefox */
+        .chat-container {
+            scrollbar-width: thin; /* Makes the scrollbar thinner */
+            scrollbar-color: rgba(255, 255, 255, 0.5) rgba(255, 255, 255, 0.1); /* Thumb color and track color */
+        }
+
     </style>
 </head>
 <body>
@@ -206,7 +233,7 @@
             const question = document.getElementById('question-input').value;
             if (!question) return;
 
-            addChatBubble(question, 'user-question', 'User');
+            addChatBubble(question, 'user-question', 'User', 'bubble-wrapper');
             document.getElementById('question-input').value = '';
 
             const response = await fetch('/ask', {
@@ -216,12 +243,12 @@
             });
 
             const result = await response.json();
-            addChatBubble(result.answer || result.error, 'ai-answer', 'ChatGPT');
+            addChatBubble(result.answer || result.error, 'ai-answer', 'ChatGPT', 'ai-wrapper');
         }
 
-        function addChatBubble(text, className, senderName) {
+        function addChatBubble(text, className, senderName, wrapperClass) {
             const bubbleWrapper = document.createElement('div');
-            bubbleWrapper.className = 'bubble-wrapper';
+            bubbleWrapper.className = wrapperClass;
 
             const label = document.createElement('span');
             label.className = 'bubble-label';
@@ -235,7 +262,7 @@
             bubbleWrapper.appendChild(bubble);
             chatContainer.appendChild(bubbleWrapper);
 
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to the bottom
         }
     </script>
 </body>
