@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Upload</title>
     <style>
+        /* Background and layout */
         body {
             margin: 0;
             padding: 0;
@@ -16,6 +17,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            font-family: Arial, sans-serif;
         }
 
         .center-square {
@@ -26,64 +28,84 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
+        /* Status message styling */
+        .status-message {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #E28B60;
+        }
+
+        .success-message {
+            color: #4CAF50;
+        }
+
+        .error-message {
+            color: #D32F2F;
+        }
+
+        /* Chat container */
         .chat-container {
             width: 100%;
             max-height: 300px;
             overflow-y: auto;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
             gap: 10px;
+            padding-right: 10px;
         }
 
+        /* Chat bubbles */
         .chat-bubble {
-            padding: 10px;
-            margin: 5px;
+            padding: 10px 15px;
             border-radius: 10px;
-            width: 75%;
-            display: inline-block;
+            max-width: 80%;
+            word-wrap: break-word;
         }
 
         .user-question {
-            background-color: #E28B60; /* Pastel burnt orange */
-            color: white;
+            background-color: #E28B60; /* Pastel burnt orange for user */
+            color: #fff;
             align-self: flex-start;
         }
 
         .ai-answer {
-            background-color: #555;
-            color: white;
+            background-color: #D3D3D3; /* Gray for AI */
+            color: #333;
             align-self: flex-end;
         }
 
-        form, input, button {
-            margin: 10px;
+        /* Input and button styling */
+        .input-container {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
         button {
             background-color: #E28B60;
-            color: white;
+            color: #fff;
             padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         button:hover {
-            background-color: #D57A5A; /* Slightly darker shade on hover */
-        }
-
-        input[type="file"], input[type="text"] {
-            padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            width: 80%;
+            background-color: #D27C5B;
         }
     </style>
 </head>
@@ -91,36 +113,69 @@
     <div class="center-square">
         <h1>Upload Document</h1>
         <form id="uploadForm">
-            <input type="file" name="document" accept=".docx" required>
+            <input type="file" id="fileInput" name="document" accept=".docx,.txt" required>
             <button type="submit">Upload</button>
+            <div id="status-message" class="status-message"></div> <!-- Status message element -->
         </form>
 
-        <h2>Ask a Question</h2>
-        <input type="text" id="question-input" placeholder="Enter your question" required><br>
-        <button id="askButton">Ask</button>
-
+        <!-- Chat display section -->
         <div class="chat-container" id="chatContainer"></div>
+
+        <!-- Input area for user question -->
+        <div class="input-container">
+            <input type="text" id="question-input" placeholder="Enter your question" required>
+            <button id="askButton">Send</button>
+        </div>
     </div>
 
     <script>
-        let documentContent = '';  // Variable to store the document content
+        let documentContent = '';  // Variable to store document content
+        const statusMessage = document.getElementById('status-message');
+        const fileInput = document.getElementById('fileInput');
+        const chatContainer = document.getElementById('chatContainer');
+        const MAX_DOCUMENT_SIZE = 5000;
 
         // Handle file upload
         document.getElementById('uploadForm').onsubmit = async function(e) {
             e.preventDefault();
-            const formData = new FormData(this);
+            const file = fileInput.files[0];
+
+            // Validate file format
+            if (!file || !['text/plain', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+                statusMessage.textContent = "Invalid file format. Please upload a .docx or .txt file.";
+                statusMessage.className = "status-message error-message";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("document", file);
+
             const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData
             });
+
             const result = await response.json();
-            documentContent = result.content;  // Store the document content
+
+            if (result.error && result.error.includes("too long")) {
+                statusMessage.textContent = "The document is too long for the bot to process.";
+                statusMessage.className = "status-message error-message";
+                return;
+            }
+
+            if (result.content) {
+                documentContent = result.content;
+                statusMessage.textContent = "Upload successful!";
+                statusMessage.className = "status-message success-message";
+            } else {
+                statusMessage.textContent = "An error occurred during upload.";
+                statusMessage.className = "status-message error-message";
+            }
         };
 
-        // Handle question submission on button click
+        // Handle question submission
         document.getElementById('askButton').onclick = sendQuestion;
 
-        // Handle question submission on Enter key
         document.getElementById('question-input').addEventListener("keypress", function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
@@ -128,41 +183,28 @@
             }
         });
 
-        // Function to send the question and display responses
         async function sendQuestion() {
             const question = document.getElementById('question-input').value;
+            if (!question) return;
 
-            // Display the user question as a chat bubble
             addChatBubble(question, 'user-question');
-
-            // Clear the input
             document.getElementById('question-input').value = '';
 
-            // Fetch the AI's answer
             const response = await fetch('/ask', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: documentContent, question: question })
             });
 
             const result = await response.json();
-            const answer = result.answer || result.error;
-
-            // Display the AI's answer as a chat bubble
-            addChatBubble(answer, 'ai-answer');
+            addChatBubble(result.answer || result.error, 'ai-answer');
         }
 
-        // Function to add a chat bubble to the chat container
         function addChatBubble(text, className) {
-            const chatContainer = document.getElementById('chatContainer');
             const bubble = document.createElement('div');
             bubble.className = `chat-bubble ${className}`;
             bubble.textContent = text;
             chatContainer.appendChild(bubble);
-
-            // Scroll to the bottom of the chat container
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     </script>
