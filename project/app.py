@@ -1,10 +1,12 @@
+# python app.py
+
 import openai
 from flask import Flask, request, render_template, jsonify
 import os
 import docx  # For reading .docx files
 
 # Load API key from a text file
-with open('C:/cdng/CloudClass2/apikey.txt', 'r') as file:
+with open('C:/CloudClass2/apikey.txt', 'r') as file:
     openai.api_key = file.read().strip()
 
 STATIC_DIR = os.path.abspath('project\static')
