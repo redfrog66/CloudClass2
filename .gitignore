@@ -1,6 +1,6 @@
 
 # Ignore the uploads folder
-uploads/
+**/uploads/
 
 # Ignore API key file containing sensitive information
 apikey.txt
